@@ -21,8 +21,12 @@ grep -Fq "kernel_proc_lab_version.h" scripts/install-dkms.sh || fail "DKMS insta
 grep -Fq "make runtime-smoke" README.md || fail "README missing runtime-smoke"
 grep -Fq "make stress-test" README.md || fail "README missing stress-test"
 grep -Fq "docs/release.md" README.md || fail "README missing release checklist link"
+grep -Fq "docs/distribution.md" README.md || fail "README missing distribution guide link"
 grep -Fq "make ci-check" docs/release.md || fail "release checklist missing ci-check"
 grep -Fq "make runtime-smoke" docs/release.md || fail "release checklist missing runtime-smoke"
+grep -Fq "git tag -a v0.8.0" docs/distribution.md || fail "distribution guide missing tag flow"
+grep -Fq "Kernel Proc Lab v0.8.0" docs/release-notes-v0.8.0.md || fail "release notes missing version title"
+grep -Fq "make install-command" docs/release-notes-v0.8.0.md || fail "release notes missing source install command"
 grep -Fq '"abi_version": 4' docs/json-schema.md || fail "JSON schema ABI is stale"
 
 echo "release-check passed"

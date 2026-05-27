@@ -104,6 +104,36 @@ labtop
 make uninstall-command
 ```
 
+## 설치
+
+소스에서 설치하는 흐름을 권장합니다. 커널 모듈은 실행 중인 커널 버전에 맞춰 빌드되어야 하므로, 릴리스에 포함된 `.ko` 파일을 그대로 사용하는 방식은 권장하지 않습니다.
+
+```bash
+git clone https://github.com/<owner>/kernel-proc-lab.git
+cd kernel-proc-lab
+make doctor
+make install-command
+labtop
+```
+
+`labtop` 명령은 필요한 사용자 공간 바이너리를 빌드하고, 모듈이 꺼져 있으면 빌드 후 로드하며, `/dev/kernel_proc_lab` 장치 노드를 복구한 뒤 TUI를 실행합니다. 모듈 로드와 장치 노드 생성에는 `sudo` 권한이 필요할 수 있습니다.
+
+DKMS로 커널 업데이트 이후 자동 재빌드를 관리하려면:
+
+```bash
+make install-dkms
+make dkms-status
+```
+
+삭제:
+
+```bash
+make uninstall-command
+make uninstall-dkms
+```
+
+배포 절차와 릴리스 검증 기준은 [docs/distribution.md](docs/distribution.md), [docs/release.md](docs/release.md)를 참고합니다.
+
 ## 빌드
 
 ```bash
