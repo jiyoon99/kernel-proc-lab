@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="816" height="530" viewBox="0 0 816 530" role="img" aria-labelledby="title desc">
+<title id="title">Actual labtop terminal capture</title>
+<desc id="desc">Actual captured output from running labtop against the loaded kernel_proc_lab module.</desc>
+<rect width="100%" height="100%" rx="0" fill="#020617"/>
+<rect x="14" y="14" width="788" height="502" rx="10" fill="#0f172a" stroke="#1e293b"/>
+<circle cx="42" cy="38" r="6" fill="#ef4444"/><circle cx="64" cy="38" r="6" fill="#f59e0b"/><circle cx="86" cy="38" r="6" fill="#22c55e"/>
+<text x="112" y="43" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" fill="#64748b">actual labtop capture</text>
+<text x="34" y="70" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#38bdf8" xml:space="preserve">  ╭──────────────────────────────────────────────────────────────────────────╮</text>
+<text x="34" y="92" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#f8fafc" xml:space="preserve">  │ Kernel Proc Lab Monitor                                         22:11:20 │</text>
+<text x="34" y="114" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ tabs      1 dash | 2 mod | 3 files | 4 trace | 5 dmesg                   │</text>
+<text x="34" y="136" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#86efac" xml:space="preserve">  │ ready     READY | ABI 4 | DKMS installed | CI ready | collector active   │</text>
+<text x="34" y="158" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#38bdf8" xml:space="preserve">  │ next      monitoring ok | d doctor | w test write                        │</text>
+<text x="34" y="180" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#38bdf8" xml:space="preserve">  ├─ module ─────────────────────────────────────────────────────────────────┤</text>
+<text x="34" y="202" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#86efac" xml:space="preserve">  │ status    module loaded | device ok | heartbeat off                      │</text>
+<text x="34" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#fbbf24" xml:space="preserve">  │ health    INFO | expected taint: out-of-tree,unsigned                    │</text>
+<text x="34" y="246" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#86efac" xml:space="preserve">  │ ops       READY | ABI ok | no drops | logging on                         │</text>
+<text x="34" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#38bdf8" xml:space="preserve">  ├─ counters ───────────────────────────────────────────────────────────────┤</text>
+<text x="34" y="290" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ reads    ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░          1 │</text>
+<text x="34" y="312" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ writes   ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░          1 │</text>
+<text x="34" y="334" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ log      ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░          1 │</text>
+<text x="34" y="356" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ heart    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░          0 │</text>
+<text x="34" y="378" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  ├─ recent log ─────────────────────────────────────────────────────────────┤</text>
+<text x="34" y="400" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#fdba74" xml:space="preserve">  │ event     WRITE #1 pid=100893 usercli: portfolio capture: ioctl path onl │</text>
+<text x="34" y="422" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#38bdf8" xml:space="preserve">  ├─ actions ────────────────────────────────────────────────────────────────┤</text>
+<text x="34" y="444" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ keys      w write | d doctor | g logs | m holders | q quit               │</text>
+<text x="34" y="466" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ mode      monitor mode | sudo labtop enables h/r/l/a/c/+/-               │</text>
+<text x="34" y="488" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#dbeafe" xml:space="preserve">  │ status    ready                                                          │</text>
+<text x="34" y="510" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace" font-size="16" fill="#38bdf8" xml:space="preserve">  ╰──────────────────────────────────────────────────────────────────────────╯</text>
+</svg>

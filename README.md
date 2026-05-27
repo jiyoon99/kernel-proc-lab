@@ -32,7 +32,7 @@ Release: <https://github.com/jiyoon99/kernel-proc-lab/releases/tag/v0.8.0>
 
 `labtop`은 모듈이 꺼져 있으면 필요한 바이너리를 빌드하고, 모듈 로드와 `/dev/kernel_proc_lab` 복구를 처리한 뒤 TUI를 실행합니다.
 
-![labtop terminal monitor preview](docs/assets/labtop-preview.svg)
+![Actual labtop terminal capture](docs/assets/labtop-actual.svg)
 
 ### Architecture
 

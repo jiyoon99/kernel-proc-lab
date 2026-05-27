@@ -21,7 +21,7 @@ grep -Fq "kernel_proc_lab_version.h" scripts/install-dkms.sh || fail "DKMS insta
 grep -Fq "dpkg-buildpackage -us -uc -b" README.md || fail "README missing Debian package build command"
 grep -Fq "sudo apt install build-essential debhelper dkms" README.md || fail "README missing Debian build dependencies"
 grep -Fq "docs/assets/kernel-proc-lab-hero.png" README.md || fail "README missing hero image"
-grep -Fq "docs/assets/labtop-preview.svg" README.md || fail "README missing labtop preview"
+grep -Fq "docs/assets/labtop-actual.svg" README.md || fail "README missing actual labtop capture"
 grep -Fq "docs/assets/architecture.svg" README.md || fail "README missing architecture diagram"
 grep -Fq "SECURITY.md" README.md || fail "README missing security policy link"
 grep -Fq "docs/testing.md" README.md || fail "README missing testing guide link"
@@ -45,7 +45,7 @@ grep -Fq "3.0 (native)" debian/source/format || fail "Debian source format missi
 grep -Fq "/usr/src/kernel-proc-lab-0.8.0" debian/rules || fail "Debian rules missing DKMS source install"
 grep -Fq "dkms add -m kernel-proc-lab -v 0.8.0" debian/postinst || fail "Debian postinst missing DKMS add"
 test -s docs/assets/kernel-proc-lab-hero.png || fail "hero image asset missing"
-test -s docs/assets/labtop-preview.svg || fail "labtop preview asset missing"
+test -s docs/assets/labtop-actual.svg || fail "actual labtop capture asset missing"
 test -s docs/assets/architecture.svg || fail "architecture asset missing"
 grep -Fq '"abi_version": 4' docs/json-schema.md || fail "JSON schema ABI is stale"
 
