@@ -1,0 +1,12 @@
+/var/log/kernel-proc-lab/*.jsonl {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    create 0644 root root
+    sharedscripts
+    postrotate
+        systemctl kill -s HUP kernel-proc-lab-collector.service >/dev/null 2>&1 || true
+    endscript
+}

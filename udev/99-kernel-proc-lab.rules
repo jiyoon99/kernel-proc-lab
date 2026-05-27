@@ -1,0 +1,1 @@
+KERNEL=="kernel_proc_lab", MODE="0660", TAG+="uaccess"

@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_path="$(readlink -f "${BASH_SOURCE[0]}")"
+repo_root="$(cd "$(dirname "${script_path}")" && pwd)"
+cd "${repo_root}"
+
+usage() {
+  cat <<'EOF'
+usage: ./run [demo|live|reload|bench|selftest|ops|fix-perms|top|trace|stop|status|holders|modinfo|report|doctor|collector|install-collector-service|uninstall-collector-service|dkms-status|install-dkms|uninstall-dkms]
+
+commands:
+  demo     build, load, smoke test, unload
+  live     build and load with heartbeat enabled
+  reload   rebuild, unload, load
+  bench    build, load, run load test
+  selftest run the runtime selftest against a loaded module
+  ops      run operational readiness checks
+  fix-perms install udev rule and repair the device node
+  top      open the btop-style terminal monitor
+  trace    stream kernel tracepoints
+  stop     unload the module
+  status   show module status
+  holders  show processes that may keep the module in use
+  modinfo  show module metadata
+  report   write a diagnostics report under reports/
+  doctor   check local environment
+  collector run the JSONL collector in the foreground
+  install-collector-service install systemd/logrotate collector files
+  uninstall-collector-service remove systemd/logrotate collector files
+  dkms-status show DKMS registration status
+  install-dkms install the module through DKMS
+  uninstall-dkms remove the DKMS registration
+EOF
+}
+
+command_name="${1:-demo}"
+
+case "${command_name}" in
+  demo)
+    ./demo.sh
+    ;;
+  live)
+    MODULE_ARGS="${MODULE_ARGS:-initial_heartbeat_interval_ms=1000 start_heartbeat_on_load=1}" make load
+    make status
+    ;;
+  reload)
+    MODULE_ARGS="${MODULE_ARGS:-initial_heartbeat_interval_ms=1000 start_heartbeat_on_load=1}" make reload
+    make status
+    ;;
+  bench)
+    make load
+    make load-test
+    ;;
+  selftest)
+    make selftest
+    ;;
+  ops)
+    make ops-check
+    ;;
+  fix-perms)
+    make fix-perms
+    ;;
+  top)
+    ./scripts/labtop-launcher.sh
+    ;;
+  trace)
+    ./scripts/trace-live.sh
+    ;;
+  stop)
+    make unload
+    ;;
+  status)
+    make status
+    ;;
+  holders)
+    make holders
+    ;;
+  modinfo)
+    make modinfo
+    ;;
+  report)
+    make report
+    ;;
+  doctor)
+    make doctor
+    ;;
+  collector)
+    make collector
+    ./kernel-lab-collector
+    ;;
+  install-collector-service)
+    make install-collector-service
+    ;;
+  uninstall-collector-service)
+    make uninstall-collector-service
+    ;;
+  dkms-status)
+    make dkms-status
+    ;;
+  install-dkms)
+    make install-dkms
+    ;;
+  uninstall-dkms)
+    make uninstall-dkms
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac

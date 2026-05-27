@@ -1,0 +1,7 @@
+#ifndef KERNEL_PROC_LAB_VERSION_H
+#define KERNEL_PROC_LAB_VERSION_H
+
+#define KERNEL_PROC_LAB_PACKAGE_NAME "kernel-proc-lab"
+#define KERNEL_PROC_LAB_VERSION "0.8.0"
+
+#endif

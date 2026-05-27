@@ -1,0 +1,30 @@
+# Kernel module build outputs
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.o
+*.cmd
+.cache.mk
+.module-common.o
+.vmlinux.*
+.tmp_versions/
+Module.symvers
+modules.order
+
+# User-space build outputs
+usercli
+labtop
+kernel-lab-collector
+tests/ring_host_test
+tests/abi_host_test
+
+# Local signing material
+certs/
+
+# Generated diagnostics
+reports/
+
+# Local interpreter caches
+__pycache__/
+*.py[cod]

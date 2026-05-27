@@ -1,0 +1,12 @@
+[Unit]
+Description=Kernel Proc Lab JSONL collector
+After=systemd-udev-settle.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/kernel-lab-collector --output /var/log/kernel-proc-lab/events.jsonl
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
