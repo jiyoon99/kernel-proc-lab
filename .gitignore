@@ -28,3 +28,16 @@ reports/
 # Local interpreter caches
 __pycache__/
 *.py[cod]
+
+# Debian packaging outputs
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/kernel-proc-lab/
+../kernel-proc-lab_*.build
+../kernel-proc-lab_*.buildinfo
+../kernel-proc-lab_*.changes
+../kernel-proc-lab_*.deb
+../kernel-proc-lab_*.dsc
+../kernel-proc-lab_*.tar.*

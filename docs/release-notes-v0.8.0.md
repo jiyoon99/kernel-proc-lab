@@ -11,6 +11,8 @@ Kernel Proc Lab is a Linux kernel driver lab that exposes kernel-space state thr
 - self-starting `labtop` command for build, load, device-node repair, and TUI launch
 - `kernel-lab-collector` for JSONL event collection
 - udev rule, systemd service, logrotate template, and DKMS scripts
+- Debian packaging skeleton for local `.deb` builds
+- security, testing, distribution, and release checklists
 - host ring-buffer tests and ioctl ABI layout tests
 - CI, ShellCheck, runtime smoke, stress, doctor, and release-check flows
 
@@ -37,6 +39,15 @@ Uninstall:
 
 ```bash
 make uninstall-dkms
+```
+
+## Debian Package
+
+```bash
+sudo apt install build-essential debhelper dkms
+dpkg-buildpackage -us -uc -b
+sudo apt install ../kernel-proc-lab_0.8.0_amd64.deb
+labtop
 ```
 
 ## Verification
@@ -70,4 +81,3 @@ reboot
 ## Notes
 
 Prebuilt `.ko` files are not the primary distribution artifact. Build the module on the target system so it matches the running kernel and local module-signing policy.
-

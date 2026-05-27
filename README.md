@@ -134,6 +134,17 @@ make uninstall-dkms
 
 배포 절차와 릴리스 검증 기준은 [docs/distribution.md](docs/distribution.md), [docs/release.md](docs/release.md)를 참고합니다.
 
+Debian 패키지 형태로 테스트하려면:
+
+```bash
+sudo apt install build-essential debhelper dkms
+dpkg-buildpackage -us -uc -b
+sudo apt install ../kernel-proc-lab_0.8.0_amd64.deb
+labtop
+```
+
+보안/권한 모델은 [SECURITY.md](SECURITY.md), 테스트 전략은 [docs/testing.md](docs/testing.md)에 정리되어 있습니다.
+
 ## 빌드
 
 ```bash

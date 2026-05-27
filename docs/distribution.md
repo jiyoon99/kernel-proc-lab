@@ -18,8 +18,8 @@ Kernel Proc Lab should be distributed as source plus install automation. Do not 
    - Lets the module rebuild when the user upgrades kernels.
 
 4. Debian package
-   - Future packaging target.
-   - Should install DKMS source, command wrappers, udev rules, service templates, logrotate config, and docs.
+   - Included as a packaging skeleton under `debian/`.
+   - Installs DKMS source, command wrappers, udev rules, service templates, logrotate config, and docs.
 
 ## Source Install
 
@@ -86,22 +86,38 @@ git push origin v0.8.0
 
 Create a GitHub Release from `v0.8.0` and paste the release notes from `docs/release-notes-v0.8.0.md`.
 
-## Debian Package Target
+## Debian Package
 
-A future `.deb` package should install:
+The included Debian package installs:
 
 ```text
 /usr/src/kernel-proc-lab-0.8.0/
 /usr/bin/labtop
 /usr/bin/kernel-lab
-/usr/bin/kernel-lab-collector
+/usr/lib/kernel-proc-lab/usercli
+/usr/lib/kernel-proc-lab/labtop
+/usr/lib/kernel-proc-lab/kernel-lab-collector
 /etc/udev/rules.d/99-kernel-proc-lab.rules
 /lib/systemd/system/kernel-proc-lab-collector.service
 /etc/logrotate.d/kernel-proc-lab
 /usr/share/doc/kernel-proc-lab/
 ```
 
-The package should run DKMS registration during install and should not ship a generic prebuilt `.ko`.
+Build locally:
+
+```bash
+sudo apt install build-essential debhelper dkms
+dpkg-buildpackage -us -uc -b
+```
+
+Install locally:
+
+```bash
+sudo apt install ../kernel-proc-lab_0.8.0_amd64.deb
+labtop
+```
+
+The package attempts DKMS registration during install and does not ship a generic prebuilt `.ko`.
 
 ## Publishing Rules
 
@@ -110,4 +126,3 @@ The package should run DKMS registration during install and should not ship a ge
 - Do not commit signing keys or MOK material.
 - Keep release notes tied to the tagged version.
 - Document Secure Boot behavior and module signing requirements.
-

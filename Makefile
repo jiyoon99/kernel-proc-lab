@@ -4,7 +4,7 @@ ccflags-y += -I$(src)
 KDIR ?= /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 
-.PHONY: all clean load reload unload status holders modinfo report test selftest ring-test abi-test qemu-smoke ops-check fix-perms load-test demo run live bench top trace sign usercli labtop collector doctor dev-check ci-check kernel-build-check version-check release-check runtime-smoke stress-test device-node install-command uninstall-command install-udev-rule install-dkms uninstall-dkms dkms-status install-collector-service uninstall-collector-service
+.PHONY: all clean load reload unload status holders modinfo report test selftest ring-test abi-test qemu-smoke ops-check fix-perms load-test demo run live bench top trace sign usercli labtop collector doctor dev-check ci-check kernel-build-check version-check release-check packaging-check runtime-smoke stress-test device-node install-command uninstall-command install-udev-rule install-dkms uninstall-dkms dkms-status install-collector-service uninstall-collector-service
 
 all:
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
@@ -31,7 +31,7 @@ tests/abi_host_test: tests/abi_host_test.c kernel_proc_lab_ioctl.h
 	$(CC) -Wall -Wextra -O2 -I. -o tests/abi_host_test tests/abi_host_test.c
 
 clean:
-	$(MAKE) -C $(KDIR) M=$(PWD) clean
+	@test ! -d "$(KDIR)" || $(MAKE) -C $(KDIR) M=$(PWD) clean
 	$(RM) usercli labtop kernel-lab-collector tests/ring_host_test tests/abi_host_test
 
 load: all
@@ -86,7 +86,7 @@ doctor:
 
 dev-check: all doctor
 
-ci-check: usercli labtop collector ring-test abi-test kernel-build-check version-check release-check
+ci-check: usercli labtop collector ring-test abi-test kernel-build-check version-check release-check packaging-check
 	bash -n demo.sh scripts/*.sh
 
 version-check:
@@ -94,6 +94,17 @@ version-check:
 
 release-check:
 	./scripts/release-check.sh
+
+packaging-check:
+	@test -f debian/control
+	@test -x debian/rules
+	@test -x debian/postinst
+	@test -x debian/prerm
+	@test -f debian/source/format
+	@test -x scripts/labtop-system-launcher.sh
+	@test -x scripts/kernel-lab-system.sh
+	@test -f SECURITY.md
+	@test -f docs/testing.md
 
 runtime-smoke: usercli collector
 	./scripts/runtime-smoke.sh

@@ -67,6 +67,7 @@ Optional extended checks:
 make stress-test
 make ops-check
 make report
+make qemu-smoke
 ```
 
 ## Packaging Verification
@@ -88,6 +89,16 @@ labtop
 make uninstall-command
 ```
 
+For Debian package metadata and local package builds:
+
+```bash
+sudo apt install build-essential debhelper dkms
+dpkg-buildpackage -us -uc -b
+sudo apt install ../kernel-proc-lab_0.8.0_amd64.deb
+labtop
+sudo apt remove kernel-proc-lab
+```
+
 For collector service templates:
 
 ```bash
@@ -102,10 +113,14 @@ Before tagging a release, update:
 
 - `kernel_proc_lab_version.h`
 - `CHANGELOG.md`
+- `SECURITY.md`
 - `README.md`
 - `docs/abi-v*.md`
+- `docs/distribution.md`
 - `docs/json-schema.md`
 - `docs/packaging.md`
+- `docs/release.md`
+- `docs/testing.md`
 
 Then run:
 
@@ -129,4 +144,3 @@ Generated artifacts that should not be committed include:
 - `tests/ring_host_test`, `tests/abi_host_test`
 - `reports/`
 - `certs/`
-

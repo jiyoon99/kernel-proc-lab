@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) usercli labtop collector
+
+override_dh_auto_install:
+	install -D -m 0755 usercli debian/kernel-proc-lab/usr/lib/kernel-proc-lab/usercli
+	install -D -m 0755 labtop debian/kernel-proc-lab/usr/lib/kernel-proc-lab/labtop
+	install -D -m 0755 kernel-lab-collector debian/kernel-proc-lab/usr/lib/kernel-proc-lab/kernel-lab-collector
+	install -D -m 0755 scripts/labtop-system-launcher.sh debian/kernel-proc-lab/usr/bin/labtop
+	install -D -m 0755 scripts/kernel-lab-system.sh debian/kernel-proc-lab/usr/bin/kernel-lab
+	install -D -m 0644 systemd/kernel-proc-lab-collector.service debian/kernel-proc-lab/lib/systemd/system/kernel-proc-lab-collector.service
+	install -D -m 0644 logrotate/kernel-proc-lab debian/kernel-proc-lab/etc/logrotate.d/kernel-proc-lab
+	install -D -m 0644 udev/99-kernel-proc-lab.rules debian/kernel-proc-lab/etc/udev/rules.d/99-kernel-proc-lab.rules
+	install -D -m 0644 Makefile debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/Makefile
+	install -D -m 0644 dkms.conf debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/dkms.conf
+	install -D -m 0644 kernel_proc_lab.c debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/kernel_proc_lab.c
+	install -D -m 0644 kernel_proc_lab_ioctl.h debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/kernel_proc_lab_ioctl.h
+	install -D -m 0644 kernel_proc_lab_ring.h debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/kernel_proc_lab_ring.h
+	install -D -m 0644 kernel_proc_lab_version.h debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/kernel_proc_lab_version.h
+	install -D -m 0644 trace/events/kernel_proc_lab_trace.h debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/trace/events/kernel_proc_lab_trace.h
+	install -d debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/scripts
+	cp -a scripts/*.sh debian/kernel-proc-lab/usr/src/kernel-proc-lab-0.8.0/scripts/
+
+override_dh_auto_clean:
+	$(MAKE) clean

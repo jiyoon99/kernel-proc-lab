@@ -1,0 +1,17 @@
+Source: kernel-proc-lab
+Section: kernel
+Priority: optional
+Maintainer: zion <jiyun990422@gmail.com>
+Build-Depends: debhelper-compat (= 13), gcc, make
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/jiyoon99/kernel-proc-lab
+
+Package: kernel-proc-lab
+Architecture: any
+Depends: dkms, kmod, make, gcc, sudo, ${shlibs:Depends}, ${misc:Depends}
+Description: Linux kernel module lab with procfs, ioctl, and TUI tooling
+ Kernel Proc Lab is an educational out-of-tree Linux kernel module project.
+ It includes a character device, procfs/sysfs/debugfs interfaces, ioctl ABI,
+ a retained event ring, pollable streams, command-line tooling, a terminal
+ monitor, collector service templates, and DKMS packaging support.

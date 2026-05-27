@@ -35,3 +35,6 @@ jobs:
 
       - name: Optional kernel module build
         run: make kernel-build-check
+
+      - name: Packaging metadata check
+        run: make packaging-check

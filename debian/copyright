@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: kernel-proc-lab
+Source: https://github.com/jiyoon99/kernel-proc-lab
+
+Files: *
+Copyright: 2026 zion
+License: GPL-2.0-only
+
+License: GPL-2.0-only
+ This package is distributed under the GNU General Public License version 2.
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in /usr/share/common-licenses/GPL-2.

@@ -1,0 +1,12 @@
+README.md
+CHANGELOG.md
+SECURITY.md
+docs/abi-v3.md
+docs/abi-v4.md
+docs/distribution.md
+docs/json-schema.md
+docs/packaging.md
+docs/release.md
+docs/release-notes-v0.8.0.md
+docs/testing.md
+docs/trace-observability.md

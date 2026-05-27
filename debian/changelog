@@ -1,0 +1,7 @@
+kernel-proc-lab (0.8.0) unstable; urgency=medium
+
+  * Initial Debian packaging for Kernel Proc Lab.
+  * Install DKMS source, command wrappers, udev rule, systemd service,
+    logrotate config, and user-space tools.
+
+ -- zion <jiyun990422@gmail.com>  Wed, 27 May 2026 21:30:00 +0900

@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
+  if command -v dkms >/dev/null 2>&1; then
+    dkms remove -m kernel-proc-lab -v 0.8.0 --all || true
+  fi
+fi
+
+#DEBHELPER#
+
+exit 0
