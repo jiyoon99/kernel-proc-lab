@@ -95,7 +95,7 @@ labtop
 
 설치되는 명령:
 
-- `labtop`: 모듈이 꺼져 있으면 heartbeat 켜고 로드한 뒤 btop 스타일 TUI 실행
+- `labtop`: 필요한 바이너리를 빌드하고, 모듈이 꺼져 있으면 heartbeat 켜고 로드한 뒤, `/dev/kernel_proc_lab`를 복구하고 btop 스타일 TUI 실행
 - `kernel-lab`: `./run`과 같은 통합 실행 명령
 
 삭제:
