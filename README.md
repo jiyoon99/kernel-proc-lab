@@ -1,23 +1,62 @@
 # Kernel Proc Lab
 
-리눅스 커널 모듈을 빌드하고 `/proc/kernel_proc_lab`, `/dev/kernel_proc_lab`로 커널 공간 상태를 읽고 쓰는 학습용 프로젝트입니다.
+![Kernel Proc Lab hero](docs/assets/kernel-proc-lab-hero.png)
 
-## 프로젝트 요약
+![release](https://img.shields.io/badge/release-v0.8.0-22c55e)
+![abi](https://img.shields.io/badge/ioctl%20ABI-4-06b6d4)
+![license](https://img.shields.io/badge/license-GPL--2.0-informational)
+![packaging](https://img.shields.io/badge/packaging-DKMS%20%2B%20Debian-f59e0b)
 
-Kernel Proc Lab은 커널 모듈, character device, ioctl ABI, ring buffer, poll 기반 이벤트 스트림을 한 프로젝트 안에서 실습할 수 있도록 만든 Linux kernel driver lab입니다. 커널 쪽 상태는 `/proc`, sysfs, debugfs, tracepoint로 노출하고, 사용자 공간에서는 CLI, TUI 모니터, JSONL collector로 확인합니다.
+리눅스 커널 모듈을 직접 빌드하고 `/proc`, character device, `ioctl`, `poll`, sysfs, debugfs, tracepoint까지 연결한 커널 드라이버 포트폴리오 프로젝트입니다. 커널 공간의 상태와 이벤트를 사용자 공간 CLI, btop 스타일 TUI, JSONL collector로 관찰할 수 있게 만들었습니다.
 
-현재 릴리스 기준:
+Repository: <https://github.com/jiyoon99/kernel-proc-lab>  
+Release: <https://github.com/jiyoon99/kernel-proc-lab/releases/tag/v0.8.0>
 
-- 모듈 버전: `0.8.0`
-- ioctl ABI: `4`
-- 장치 인터페이스: `/dev/kernel_proc_lab`
-- 상태 인터페이스: `/proc/kernel_proc_lab`, `/sys/class/kernel_proc_lab/kernel_proc_lab`
-- 사용자 도구: `usercli`, `labtop`, `kernel-lab-collector`
-- 배포 보조: udev rule, systemd service, logrotate template, DKMS scripts
+## What I Built
 
-## 검증 상태
+이 프로젝트는 단순한 "hello kernel module"이 아니라, 커널 모듈을 실제 도구처럼 다룰 수 있게 만든 end-to-end lab입니다.
 
-마무리 전 기본 검증은 아래 명령으로 확인합니다.
+| Area | Implementation |
+| --- | --- |
+| Kernel module | `module_init`, `module_exit`, module parameters, retained in-kernel event ring |
+| Device interface | `/dev/kernel_proc_lab` character device, read/write path, `poll` wakeups |
+| Control ABI | versioned ioctl ABI v4, stats/config/log/filter/heartbeat commands |
+| Observability | `/proc`, sysfs, debugfs, tracepoints, `dmesg` diagnostics |
+| User tooling | `usercli`, self-starting `labtop`, `kernel-lab-collector` |
+| Packaging | DKMS install flow, Debian package, udev rule, systemd service, logrotate |
+| Verification | host tests, ABI layout tests, ShellCheck, runtime smoke, stress, release checks |
+
+## Screenshots
+
+### labtop TUI
+
+`labtop`은 모듈이 꺼져 있으면 필요한 바이너리를 빌드하고, 모듈 로드와 `/dev/kernel_proc_lab` 복구를 처리한 뒤 TUI를 실행합니다.
+
+![labtop terminal monitor preview](docs/assets/labtop-preview.svg)
+
+### Architecture
+
+사용자 공간 도구는 `/proc`, `/dev`, ioctl, sysfs/debugfs, tracepoint를 통해 커널 모듈 상태와 이벤트를 관찰합니다.
+
+![Kernel Proc Lab architecture](docs/assets/architecture.svg)
+
+## Key Features
+
+- `kernel_proc_lab.ko` external kernel module
+- `/proc/kernel_proc_lab` status page
+- `/dev/kernel_proc_lab` character device
+- ABI-stable ioctl commands with `KERNEL_PROC_LAB_ABI_VERSION=4`
+- retained ring buffer for recent typed events
+- `poll`/stream support for new message events
+- heartbeat worker with configurable interval
+- filter commands for retained event views
+- JSON output for automation and collector integration
+- self-starting `labtop` terminal dashboard
+- DKMS and Debian packaging support
+
+## Verification
+
+기본 검증은 아래 명령으로 확인합니다.
 
 ```bash
 make ci-check
@@ -109,7 +148,7 @@ make uninstall-command
 소스에서 설치하는 흐름을 권장합니다. 커널 모듈은 실행 중인 커널 버전에 맞춰 빌드되어야 하므로, 릴리스에 포함된 `.ko` 파일을 그대로 사용하는 방식은 권장하지 않습니다.
 
 ```bash
-git clone https://github.com/<owner>/kernel-proc-lab.git
+git clone https://github.com/jiyoon99/kernel-proc-lab.git
 cd kernel-proc-lab
 make doctor
 make install-command

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Kernel Proc Lab architecture</title>
+  <desc id="desc">User-space tools communicate with the kernel module through procfs, a character device, ioctl, sysfs, debugfs, and tracepoints.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#18202f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .label { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #e5e7eb; font-weight: 700; font-size: 24px; }
+      .small { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #cbd5e1; font-size: 15px; }
+      .tiny { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #a7f3d0; font-size: 14px; }
+      .card { fill: #0f172a; stroke: #334155; stroke-width: 1.5; filter: url(#shadow); }
+      .port { fill: #1f2937; stroke: #475569; stroke-width: 1; }
+      .line { stroke: #94a3b8; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .accent { fill: #22c55e; }
+      .warn { fill: #f59e0b; }
+      .cyan { fill: #06b6d4; }
+    </style>
+  </defs>
+  <rect width="1200" height="520" rx="0" fill="url(#bg)"/>
+
+  <text x="60" y="64" class="label">Kernel Proc Lab</text>
+  <text x="60" y="92" class="small">Linux kernel module lab with procfs, character device, ioctl ABI, retained event ring, and terminal tooling</text>
+
+  <rect x="60" y="145" width="285" height="230" rx="8" class="card"/>
+  <circle cx="95" cy="184" r="10" class="cyan"/>
+  <text x="120" y="191" class="label" font-size="22">User Space</text>
+  <rect x="92" y="225" width="220" height="34" rx="6" class="port"/>
+  <text x="108" y="247" class="tiny">usercli</text>
+  <rect x="92" y="271" width="220" height="34" rx="6" class="port"/>
+  <text x="108" y="293" class="tiny">labtop TUI</text>
+  <rect x="92" y="317" width="220" height="34" rx="6" class="port"/>
+  <text x="108" y="339" class="tiny">kernel-lab-collector</text>
+
+  <rect x="460" y="120" width="300" height="285" rx="8" class="card"/>
+  <circle cx="495" cy="159" r="10" class="accent"/>
+  <text x="520" y="166" class="label" font-size="22">kernel_proc_lab.ko</text>
+  <text x="492" y="207" class="small">state counters</text>
+  <text x="492" y="236" class="small">message buffer</text>
+  <text x="492" y="265" class="small">retained event ring</text>
+  <text x="492" y="294" class="small">filter and heartbeat control</text>
+  <text x="492" y="323" class="small">poll wakeups</text>
+  <text x="492" y="352" class="small">trace events</text>
+
+  <rect x="875" y="105" width="265" height="330" rx="8" class="card"/>
+  <circle cx="910" cy="144" r="10" class="warn"/>
+  <text x="935" y="151" class="label" font-size="22">Kernel Interfaces</text>
+  <rect x="910" y="185" width="190" height="32" rx="6" class="port"/>
+  <text x="927" y="206" class="tiny">/proc/kernel_proc_lab</text>
+  <rect x="910" y="229" width="190" height="32" rx="6" class="port"/>
+  <text x="927" y="250" class="tiny">/dev/kernel_proc_lab</text>
+  <rect x="910" y="273" width="190" height="32" rx="6" class="port"/>
+  <text x="927" y="294" class="tiny">ioctl ABI v4</text>
+  <rect x="910" y="317" width="190" height="32" rx="6" class="port"/>
+  <text x="927" y="338" class="tiny">sysfs + debugfs</text>
+  <rect x="910" y="361" width="190" height="32" rx="6" class="port"/>
+  <text x="927" y="382" class="tiny">tracepoints</text>
+
+  <path d="M345 260 C385 260 410 260 460 260" class="line"/>
+  <path d="M760 260 C810 260 835 260 875 260" class="line"/>
+  <path d="M875 390 C775 470 455 470 345 350" class="line"/>
+
+  <text x="60" y="455" class="small">Release: v0.8.0 · ABI: 4 · Packaging: DKMS and Debian · Verification: ci-check, runtime-smoke, release-check</text>
+</svg>
