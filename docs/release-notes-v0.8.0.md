@@ -10,7 +10,10 @@ Kernel Proc Lab is a Linux kernel driver lab that exposes kernel-space state thr
 - `usercli` read/write/stats/log/config/doctor/filter/heartbeat commands
 - self-starting `labtop` command for build, load, device-node repair, and TUI launch
 - `kernel-lab-collector` for JSONL event collection
-- udev rule, systemd service, logrotate template, and DKMS scripts
+- boot-time module setup service plus collector systemd service, udev rule, logrotate template, and DKMS scripts
+- local collector fallback under `logs/events.jsonl` when systemd setup is unavailable
+- `/proc/kernel_proc_lab` fallback collection when `/dev/kernel_proc_lab` is missing
+- compact `labtop` dashboard with readiness, collector state, counter graphs, and the latest event visible on short terminals
 - Debian packaging skeleton for local `.deb` builds
 - security, testing, distribution, and release checklists
 - host ring-buffer tests and ioctl ABI layout tests

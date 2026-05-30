@@ -9,6 +9,12 @@
 - Added systemd service and logrotate templates for collector deployment.
 - Improved `labtop` with filter/collector views and reduced redraw flicker/read-counter side effects.
 - Made `labtop` height-aware so dashboard and snapshot views do not scroll the terminal when events arrive.
+- Added a boot-time `kernel-proc-lab.service` that loads the module and repairs `/dev/kernel_proc_lab` before collection starts.
+- Made the source-tree `labtop` launcher build all user tools, load the module, repair the device node, and start collection automatically.
+- Added local collector fallback logging under `logs/events.jsonl` when systemd service setup is unavailable.
+- Added `/proc/kernel_proc_lab` fallback collection so JSONL logging still works when the character device is missing.
+- Refined `labtop` readiness so normal ring rotation does not show as a red warning.
+- Rebalanced the compact `labtop` dashboard to keep counters, one latest event row, collector state, and readiness visible on short terminals.
 
 ## 0.7.0
 
