@@ -34,7 +34,7 @@ jobs:
           ./usercli --help
 
       - name: Optional kernel module build
-        run: make kernel-build-check
+        run: make optional-kernel-build-check
 
       - name: Packaging metadata check
         run: make packaging-check

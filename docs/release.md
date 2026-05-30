@@ -107,6 +107,13 @@ systemctl status kernel-proc-lab-collector.service
 make uninstall-collector-service
 ```
 
+For package boot integration, verify both installed services:
+
+```bash
+systemctl status kernel-proc-lab.service
+systemctl status kernel-proc-lab-collector.service
+```
+
 ## Documentation Checks
 
 Before tagging a release, update:

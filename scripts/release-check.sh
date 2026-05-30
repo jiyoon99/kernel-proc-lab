@@ -11,12 +11,14 @@ fail() {
 
 ./scripts/version-check.sh >/dev/null
 
-for target in ci-check runtime-smoke stress-test kernel-build-check version-check release-check packaging-check; do
+for target in ci-check runtime-smoke stress-test kernel-build-check optional-kernel-build-check version-check release-check packaging-check; do
   grep -Eq "^${target}:" Makefile || fail "missing Makefile target: ${target}"
 done
 
 grep -Fq "SIGHUP" collector.c || fail "collector does not handle SIGHUP"
 grep -Fq "systemctl kill -s HUP kernel-proc-lab-collector.service" logrotate/kernel-proc-lab || fail "logrotate does not notify collector"
+grep -Fq "Wants=kernel-proc-lab.service" systemd/kernel-proc-lab-collector.service || fail "collector service does not request module setup"
+grep -Fq "ExecStart=/usr/bin/kernel-lab load" systemd/kernel-proc-lab.service || fail "module setup service does not load through kernel-lab"
 grep -Fq "kernel_proc_lab_version.h" scripts/install-dkms.sh || fail "DKMS install omits version header"
 grep -Fq "dpkg-buildpackage -us -uc -b" README.md || fail "README missing Debian package build command"
 grep -Fq "sudo apt install build-essential debhelper dkms" README.md || fail "README missing Debian build dependencies"
@@ -43,6 +45,7 @@ grep -Fq "make install-command" docs/release-notes-v0.8.0.md || fail "release no
 grep -Fq "dpkg-buildpackage -us -uc -b" docs/release-notes-v0.8.0.md || fail "release notes missing Debian package build"
 grep -Fq "3.0 (native)" debian/source/format || fail "Debian source format missing"
 grep -Fq "/usr/src/kernel-proc-lab-0.8.0" debian/rules || fail "Debian rules missing DKMS source install"
+grep -Fq "systemd/kernel-proc-lab.service" debian/rules || fail "Debian rules missing module setup systemd unit"
 grep -Fq "dkms add -m kernel-proc-lab -v 0.8.0" debian/postinst || fail "Debian postinst missing DKMS add"
 test -s docs/assets/kernel-proc-lab-hero.png || fail "hero image asset missing"
 test -s docs/assets/labtop-actual.svg || fail "actual labtop capture asset missing"

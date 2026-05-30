@@ -4,7 +4,7 @@ ccflags-y += -I$(src)
 KDIR ?= /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 
-.PHONY: all clean load reload unload status holders modinfo report test selftest ring-test abi-test qemu-smoke ops-check fix-perms load-test demo run live bench top trace sign usercli labtop collector doctor dev-check ci-check kernel-build-check version-check release-check packaging-check runtime-smoke stress-test device-node install-command uninstall-command install-udev-rule install-dkms uninstall-dkms dkms-status install-collector-service uninstall-collector-service
+.PHONY: all clean load reload unload status holders modinfo report test selftest ring-test abi-test qemu-smoke ops-check fix-perms load-test demo run live bench top trace sign usercli labtop collector doctor dev-check ci-check kernel-build-check optional-kernel-build-check version-check release-check packaging-check runtime-smoke stress-test device-node install-command uninstall-command install-udev-rule install-dkms uninstall-dkms dkms-status install-collector-service uninstall-collector-service
 
 all:
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
@@ -88,6 +88,7 @@ dev-check: all doctor
 
 ci-check: usercli labtop collector ring-test abi-test kernel-build-check version-check release-check packaging-check
 	bash -n demo.sh scripts/*.sh
+	shellcheck demo.sh scripts/*.sh
 
 version-check:
 	./scripts/version-check.sh
@@ -103,6 +104,7 @@ packaging-check:
 	@test -f debian/source/format
 	@test -x scripts/labtop-system-launcher.sh
 	@test -x scripts/kernel-lab-system.sh
+	@test -f systemd/kernel-proc-lab.service
 	@test -f SECURITY.md
 	@test -f docs/testing.md
 
@@ -113,6 +115,10 @@ stress-test: usercli
 	./scripts/stress-test.sh
 
 kernel-build-check:
+	@test -d "$(KDIR)" || { echo "missing kernel build directory: $(KDIR)"; exit 1; }
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
+
+optional-kernel-build-check:
 	@test -d "$(KDIR)" && $(MAKE) -C $(KDIR) M=$(PWD) modules || echo "skip kernel build: missing $(KDIR)"
 
 device-node:

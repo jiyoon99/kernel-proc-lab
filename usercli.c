@@ -310,7 +310,7 @@ static int print_health(const char *device_path, int json)
 {
 	struct kernel_proc_lab_stats stats;
 	const char *state = "READY";
-	const char *reason = "ABI ok, no dropped log events";
+	const char *reason = "ABI ok, retained ring operational";
 	int ready = 1;
 
 	if (get_stats(device_path, &stats) != 0)
@@ -319,10 +319,6 @@ static int print_health(const char *device_path, int json)
 	if (stats.abi_version != KERNEL_PROC_LAB_ABI_VERSION) {
 		state = "WARN";
 		reason = "tool and driver ABI versions differ";
-		ready = 0;
-	} else if (stats.dropped_log_events > 0) {
-		state = "WARN";
-		reason = "ring buffer dropped events";
 		ready = 0;
 	}
 

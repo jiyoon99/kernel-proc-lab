@@ -48,16 +48,20 @@ static inline void kernel_proc_lab_ring_snapshot(
 	u64 latest_sequence, struct kernel_proc_lab_log_snapshot *snapshot)
 {
 	u64 first_sequence;
+	u32 snapshot_count;
 	u32 index;
 
 	memset(snapshot, 0, sizeof(*snapshot));
-	snapshot->count = count;
+	snapshot_count = count;
+	if (snapshot_count > KERNEL_PROC_LAB_USER_LOG_CAPACITY)
+		snapshot_count = KERNEL_PROC_LAB_USER_LOG_CAPACITY;
+	snapshot->count = snapshot_count;
 
-	if (count == 0)
+	if (snapshot_count == 0)
 		return;
 
-	first_sequence = kernel_proc_lab_ring_retained_start(latest_sequence, count);
-	for (index = 0; index < count; index += 1) {
+	first_sequence = latest_sequence - snapshot_count + 1;
+	for (index = 0; index < snapshot_count; index += 1) {
 		u64 sequence = first_sequence + index;
 		u32 source = kernel_proc_lab_ring_index(sequence, capacity);
 

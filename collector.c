@@ -15,6 +15,7 @@
 #include "kernel_proc_lab_version.h"
 
 #define DEFAULT_DEVICE "/dev/kernel_proc_lab"
+#define DEFAULT_PROC "/proc/kernel_proc_lab"
 #define DEFAULT_OUTPUT "/var/log/kernel-proc-lab/events.jsonl"
 #define BUFFER_SIZE 512
 #define LINE_BUFFER_SIZE 2048
@@ -155,6 +156,57 @@ static void process_stream_bytes(FILE *out, const char *buffer, size_t length,
 	}
 }
 
+static int collect_proc_snapshot(FILE *out, const char *proc_path,
+				 unsigned long long *last_seq)
+{
+	FILE *proc = fopen(proc_path, "r");
+	char line[LINE_BUFFER_SIZE];
+	int in_recent_log = 0;
+
+	if (!proc) {
+		perror("fopen proc");
+		return 1;
+	}
+
+	while (fgets(line, sizeof(line), proc)) {
+		char *entry = line;
+		unsigned long long seq;
+
+		if (strcmp(line, "recent_log:\n") == 0) {
+			in_recent_log = 1;
+			continue;
+		}
+		if (!in_recent_log)
+			continue;
+
+		while (*entry == ' ' || *entry == '\t')
+			entry += 1;
+		if (sscanf(entry, "#%llu", &seq) != 1)
+			continue;
+		if (seq <= *last_seq)
+			continue;
+
+		entry[strcspn(entry, "\n")] = '\0';
+		write_event(out, entry);
+		*last_seq = seq;
+	}
+
+	fclose(proc);
+	return 0;
+}
+
+static int collect_from_proc(FILE *out, const char *proc_path)
+{
+	unsigned long long last_seq = 0;
+
+	while (keep_running) {
+		collect_proc_snapshot(out, proc_path, &last_seq);
+		sleep(1);
+	}
+
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	const char *device_path = DEFAULT_DEVICE;
@@ -194,9 +246,13 @@ int main(int argc, char **argv)
 
 	fd = open(device_path, O_RDONLY);
 	if (fd < 0) {
-		perror("open device");
+		perror("open device; falling back to proc snapshot collector");
+		signal(SIGINT, handle_signal);
+		signal(SIGTERM, handle_signal);
+		signal(SIGHUP, handle_signal);
+		collect_from_proc(out, DEFAULT_PROC);
 		fclose(out);
-		return 1;
+		return 0;
 	}
 
 	if (ioctl(fd, KERNEL_PROC_LAB_IOC_START_STREAM) < 0) {

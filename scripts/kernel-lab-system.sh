@@ -6,33 +6,40 @@ package_version="0.8.0"
 source_dir="/usr/src/${package_name}-${package_version}"
 lib_dir="/usr/lib/kernel-proc-lab"
 
-if [[ ! -d "${source_dir}" ]]; then
-  echo "missing DKMS source directory: ${source_dir}" >&2
-  echo "reinstall the ${package_name} package" >&2
-  exit 1
-fi
+require_source_dir() {
+  if [[ ! -d "${source_dir}" ]]; then
+    echo "missing DKMS source directory: ${source_dir}" >&2
+    echo "reinstall the ${package_name} package" >&2
+    exit 1
+  fi
 
-cd "${source_dir}"
+  cd "${source_dir}"
+}
 
 case "${1:-top}" in
   top|labtop)
     exec /usr/bin/labtop
     ;;
   doctor)
+    require_source_dir
     exec ./scripts/doctor.sh
     ;;
   load)
+    require_source_dir
     make kernel_proc_lab.ko >/dev/null
     exec ./scripts/load-module.sh
     ;;
   unload|stop)
+    require_source_dir
     exec ./scripts/unload-module.sh
     ;;
   reload)
+    require_source_dir
     make kernel_proc_lab.ko >/dev/null
     exec ./scripts/reload-module.sh
     ;;
   status)
+    require_source_dir
     lsmod | grep kernel_proc_lab || true
     if [[ -e /proc/kernel_proc_lab ]]; then
       cat /proc/kernel_proc_lab
@@ -42,10 +49,12 @@ case "${1:-top}" in
     fi
     ;;
   device-node|fix-perms)
+    require_source_dir
     exec ./scripts/ensure-device-node.sh
     ;;
   collector)
-    exec "${lib_dir}/kernel-lab-collector"
+    shift
+    exec "${lib_dir}/kernel-lab-collector" "$@"
     ;;
   usercli)
     shift

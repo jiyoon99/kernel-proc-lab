@@ -1,0 +1,17 @@
+[Unit]
+Description=Kernel Proc Lab module and device setup
+After=systemd-modules-load.service systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+ConditionPathExists=/usr/src/kernel-proc-lab-0.8.0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=MODULE_ARGS=initial_heartbeat_interval_ms=1000 start_heartbeat_on_load=1
+ExecStart=/usr/bin/kernel-lab load
+ExecStartPost=/usr/bin/kernel-lab device-node
+ExecStop=/usr/bin/kernel-lab unload
+TimeoutStartSec=90s
+
+[Install]
+WantedBy=multi-user.target

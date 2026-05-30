@@ -130,13 +130,14 @@ static bool event_allowed(u32 type, u32 pid, u32 uid, const char *comm)
 
 static u64 append_log_entry(u32 type, const char *message)
 {
-	u64 seq = (u64)atomic64_inc_return(&log_sequence);
+	u64 seq;
 	u32 pid = (u32)task_pid_nr(current);
 	u32 uid = from_kuid(&init_user_ns, current_uid());
 
 	if (!event_allowed(type, pid, uid, current->comm))
-		return seq;
+		return 0;
 
+	seq = (u64)atomic64_inc_return(&log_sequence);
 	kernel_proc_lab_ring_fill_entry(log_entries, log_capacity, seq,
 					ktime_get_ns(), type, pid, uid,
 					current->comm, message);
@@ -662,7 +663,7 @@ static ssize_t lab_chrdev_read(struct file *file, char __user *buffer, size_t co
 				atomic64_inc(&read_count);
 				return len;
 			}
-			mutex_unlock(&message_lock);
+		mutex_unlock(&message_lock);
 
 			if (file->f_flags & O_NONBLOCK)
 				return -EAGAIN;
@@ -765,21 +766,23 @@ static long lab_chrdev_ioctl(struct file *file, unsigned int cmd, unsigned long 
 					  GFP_KERNEL);
 			if (!entries)
 				return -ENOMEM;
-		} else {
-			entries = NULL;
-		}
+			} else {
+				entries = NULL;
+			}
 
 		mutex_lock(&message_lock);
 		log_read.count = min(log_count, log_read.capacity);
-		log_read.start_seq = retained_log_start_locked();
 		log_read.latest_seq = (u64)atomic64_read(&log_sequence);
+		log_read.start_seq = log_read.count == 0 ?
+					     log_read.latest_seq + 1 :
+					     log_read.latest_seq - log_read.count + 1;
 		for (ret = 0; ret < log_read.count; ret += 1) {
 			u64 seq = log_read.latest_seq - log_read.count + 1 + ret;
 			u32 source = kernel_proc_lab_ring_index(seq, log_capacity);
 
 			entries[ret] = log_entries[source];
 		}
-		mutex_unlock(&message_lock);
+			mutex_unlock(&message_lock);
 
 		ret = 0;
 		if (log_read.count > 0)

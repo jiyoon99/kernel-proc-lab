@@ -35,7 +35,7 @@ The `debian/` directory builds a native package that installs:
 - user tools under `/usr/lib/kernel-proc-lab`
 - command wrappers under `/usr/bin`
 - udev rule under `/etc/udev/rules.d`
-- systemd service under `/lib/systemd/system`
+- systemd services under `/lib/systemd/system` for module setup and JSONL collection
 - logrotate config under `/etc/logrotate.d`
 - documentation under `/usr/share/doc/kernel-proc-lab`
 

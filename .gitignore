@@ -24,6 +24,7 @@ certs/
 
 # Generated diagnostics
 reports/
+logs/
 
 # Local interpreter caches
 __pycache__/

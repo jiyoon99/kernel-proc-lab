@@ -98,6 +98,7 @@ The included Debian package installs:
 /usr/lib/kernel-proc-lab/labtop
 /usr/lib/kernel-proc-lab/kernel-lab-collector
 /etc/udev/rules.d/99-kernel-proc-lab.rules
+/lib/systemd/system/kernel-proc-lab.service
 /lib/systemd/system/kernel-proc-lab-collector.service
 /etc/logrotate.d/kernel-proc-lab
 /usr/share/doc/kernel-proc-lab/
@@ -118,6 +119,7 @@ labtop
 ```
 
 The package attempts DKMS registration during install and does not ship a generic prebuilt `.ko`.
+On systemd systems, the package installs a boot service that loads `kernel_proc_lab`, repairs `/dev/kernel_proc_lab`, and starts the JSONL collector after the module is ready.
 
 ## Publishing Rules
 

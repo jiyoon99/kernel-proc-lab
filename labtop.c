@@ -19,6 +19,7 @@
 #define DEVICE_PATH "/dev/kernel_proc_lab"
 #define PROC_PATH "/proc/kernel_proc_lab"
 #define COLLECTOR_LOG_PATH "/var/log/kernel-proc-lab/events.jsonl"
+#define LOCAL_COLLECTOR_LOG_PATH "logs/events.jsonl"
 #define MESSAGE_SIZE 256
 #define MIN_PANEL_WIDTH 64
 #define MAX_PANEL_WIDTH 112
@@ -108,6 +109,7 @@ struct project_metrics {
 
 struct collector_metrics {
 	int service_active;
+	int local_active;
 	int log_exists;
 	unsigned long long log_size;
 	time_t log_mtime;
@@ -601,15 +603,30 @@ static int make_target_exists(const char *target)
 static void read_collector_metrics(struct collector_metrics *collector)
 {
 	struct stat st;
+	FILE *pid_file;
+	long local_pid = 0;
 
 	memset(collector, 0, sizeof(*collector));
 	collector->service_active = command_succeeds(
 		"systemctl is-active --quiet kernel-proc-lab-collector.service >/dev/null 2>&1");
-	if (stat(COLLECTOR_LOG_PATH, &st) == 0) {
+	pid_file = fopen("logs/collector.pid", "r");
+	if (pid_file) {
+		if (fscanf(pid_file, "%ld", &local_pid) == 1 && local_pid > 0 &&
+		    kill((pid_t)local_pid, 0) == 0)
+			collector->local_active = 1;
+		fclose(pid_file);
+	}
+	if (stat(COLLECTOR_LOG_PATH, &st) == 0 ||
+	    stat(LOCAL_COLLECTOR_LOG_PATH, &st) == 0) {
 		collector->log_exists = 1;
 		collector->log_size = (unsigned long long)st.st_size;
 		collector->log_mtime = st.st_mtime;
 	}
+}
+
+static int collector_is_active(const struct collector_metrics *collector)
+{
+	return collector->service_active || collector->local_active;
 }
 
 static void read_project_metrics(struct project_metrics *project)
@@ -660,7 +677,6 @@ static void read_collector_metrics_cached(struct cached_collector_metrics *cache
 }
 
 static void update_health(const struct kernel_proc_lab_stats *stats,
-			  const struct module_metrics *module,
 			  struct kernel_health *health)
 {
 	health->tainted = read_kernel_taint();
@@ -672,12 +688,6 @@ static void update_health(const struct kernel_proc_lab_stats *stats,
 			snprintf(health->state, sizeof(health->state), "WARN");
 		format_kernel_taint(health->tainted, health->detail,
 				    sizeof(health->detail));
-		return;
-	}
-	if (module->dropped_log_events > 0) {
-		snprintf(health->state, sizeof(health->state), "WARN");
-		snprintf(health->detail, sizeof(health->detail), "ring drops %llu",
-			 module->dropped_log_events);
 		return;
 	}
 	if (!stats->heartbeat_enabled) {
@@ -1367,7 +1377,7 @@ static const char *log_entry_color(const struct kernel_proc_lab_log_entry *entry
 	case KERNEL_PROC_LAB_EVENT_WRITE:
 		return "\033[38;5;214m";
 	case KERNEL_PROC_LAB_EVENT_HEARTBEAT:
-		return "\033[38;5;203m";
+		return "\033[38;5;120m";
 	case KERNEL_PROC_LAB_EVENT_CLEAR:
 	case KERNEL_PROC_LAB_EVENT_RESET:
 		return "\033[38;5;220m";
@@ -1668,11 +1678,17 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 	int lines = 0;
 	int compact = max_lines < 40;
 	int tiny = max_lines < 32;
-	int log_rows = tiny ? 2 : (compact ? 3 : LOG_DISPLAY_COUNT);
+	int log_rows = 1;
+	int reserved_log_lines = log_rows + 1;
+	int draw_limit = body_lines;
+	int pre_log_limit = body_lines - reserved_log_lines;
+
+	if (pre_log_limit < 10)
+		pre_log_limit = 10;
 
 #define DRAW_ONE(call)                                                          \
 	do {                                                                    \
-		if (lines < body_lines) {                                       \
+		if (lines < draw_limit) {                                      \
 			printf("  ");                                           \
 			call;                                                   \
 			lines += 1;                                             \
@@ -1697,17 +1713,14 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 		 stats->heartbeat_enabled ? "on" : "off");
 	snprintf(health_text, sizeof(health_text), "%s | %s",
 		 health->state, health->detail);
-	if (module->dropped_log_events > 0)
-		snprintf(ops_text, sizeof(ops_text), "WARN drops=%llu | inspect log",
-			 module->dropped_log_events);
-	else if (stats->abi_version != 0 &&
+	if (stats->abi_version != 0 &&
 		 stats->abi_version != KERNEL_PROC_LAB_ABI_VERSION)
 		snprintf(ops_text, sizeof(ops_text), "WARN ABI tool=%u driver=%u",
 			 KERNEL_PROC_LAB_ABI_VERSION, stats->abi_version);
-	else if (!collector->service_active)
+	else if (!collector_is_active(collector))
 		snprintf(ops_text, sizeof(ops_text), "WARN collector inactive | logging off");
 	else
-		snprintf(ops_text, sizeof(ops_text), "READY | ABI ok | no drops | logging on");
+		snprintf(ops_text, sizeof(ops_text), "READY | ABI ok | logging on");
 	if (stats->abi_version != KERNEL_PROC_LAB_ABI_VERSION) {
 		snprintf(readiness_state, sizeof(readiness_state), "WARN");
 		snprintf(readiness_detail, sizeof(readiness_detail),
@@ -1715,13 +1728,7 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 			 KERNEL_PROC_LAB_ABI_VERSION, stats->abi_version);
 		snprintf(next_action_text, sizeof(next_action_text),
 			 "run: make reload");
-	} else if (module->dropped_log_events > 0) {
-		snprintf(readiness_state, sizeof(readiness_state), "WARN");
-		snprintf(readiness_detail, sizeof(readiness_detail),
-			 "ring drops=%llu", module->dropped_log_events);
-		snprintf(next_action_text, sizeof(next_action_text),
-			 "inspect: g logs | consider reset log");
-	} else if (!collector->service_active) {
+	} else if (!collector_is_active(collector)) {
 		snprintf(readiness_state, sizeof(readiness_state), "WARN");
 		snprintf(readiness_detail, sizeof(readiness_detail),
 			 "collector inactive | events not persisted");
@@ -1733,7 +1740,7 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 			 "ABI 4 | DKMS %s | CI %s | collector %s",
 			 project->dkms_registered ? "installed" : "missing",
 			 project->ci_check_target_present ? "ready" : "missing",
-			 collector->service_active ? "active" : "inactive");
+			 collector_is_active(collector) ? "active" : "inactive");
 		snprintf(next_action_text, sizeof(next_action_text),
 			 "monitoring ok | d doctor | w test write");
 	}
@@ -1782,7 +1789,8 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 		 path_exists("/usr/local/bin/labtop") ? "installed" : "local",
 		 project->ci_check_target_present ? "target" : "missing");
 	snprintf(collector_text, sizeof(collector_text), "svc %s | jsonl %s | %llu bytes",
-		 collector->service_active ? "active" : "inactive",
+		 collector->service_active ? "service" :
+		 collector->local_active ? "local" : "inactive",
 		 collector->log_exists ? "present" : "missing",
 		 collector->log_size);
 	snprintf(filter_text, sizeof(filter_text), "%s | mask 0x%x | pid %u | uid %u | comm %s",
@@ -1808,12 +1816,16 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 	if (!tiny)
 		DRAW_ONE(draw_text_row("tabs", "6 doctor | 7 test | 8 proj | 9 ops | f filter | g logs", width));
 	DRAW_ONE(draw_status_row("ready", readiness_state, readiness_detail, width));
-	DRAW_ONE(draw_text_row("next", next_action_text, width));
+	if (!tiny)
+		DRAW_ONE(draw_text_row("next", next_action_text, width));
+
+	draw_limit = pre_log_limit;
 	DRAW_ONE(draw_section_title("module", width));
 	if (!tiny)
 		DRAW_ONE(draw_text_row("source", source, width));
 	DRAW_ONE(draw_text_row("status", status_text, width));
-	DRAW_ONE(draw_text_row("health", health_text, width));
+	if (!tiny)
+		DRAW_ONE(draw_text_row("health", health_text, width));
 	DRAW_ONE(draw_text_row("ops", ops_text, width));
 	if (!tiny)
 		DRAW_ONE(draw_text_row("config", interval_text, width));
@@ -1824,11 +1836,13 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 		DRAW_ONE(draw_text_row("abi", abi_text, width));
 		DRAW_ONE(draw_text_row("retained", retained_text, width));
 		DRAW_ONE(draw_text_row("drops", module->dropped_log_events ?
-				       "ring overwrite detected" : "none", width));
+				       "normal ring rotation" : "none", width));
 		DRAW_ONE(draw_text_row("device", device_text, width));
 		DRAW_ONE(draw_text_row("writer", writer_text, width));
 		DRAW_ONE(draw_text_row("version", module->version[0] ?
 				       module->version : "(unknown)", width));
+	} else if (!tiny) {
+		DRAW_ONE(draw_text_row("abi", abi_text, width));
 	}
 	if (!tiny) {
 		DRAW_ONE(draw_section_title("project", width));
@@ -1840,6 +1854,8 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 		}
 		DRAW_ONE(draw_text_row("collect", collector_text, width));
 		DRAW_ONE(draw_text_row("filter", filter_text, width));
+	} else if (compact) {
+		DRAW_ONE(draw_text_row("collect", collector_text, width));
 	}
 	if (!tiny) {
 		DRAW_ONE(draw_section_title("system", width));
@@ -1858,13 +1874,12 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 			      "\033[38;5;81m"));
 	DRAW_ONE(draw_bar_row("writes", stats->writes, max_value, width,
 			      "\033[38;5;214m"));
-	if (!tiny)
-		DRAW_ONE(draw_bar_row("opens", stats->opens, max_value, width,
-				      "\033[38;5;120m"));
+	DRAW_ONE(draw_bar_row("opens", stats->opens, max_value, width,
+			      "\033[38;5;120m"));
 	DRAW_ONE(draw_bar_row("log", stats->log_events, max_value, width,
 			      "\033[38;5;177m"));
 	DRAW_ONE(draw_bar_row("heart", stats->heartbeat_ticks, max_value, width,
-			      "\033[38;5;203m"));
+			      "\033[38;5;120m"));
 	if (!compact) {
 		DRAW_ONE(draw_section_title("activity", width));
 		DRAW_ONE(draw_text_row("io/s", io_rate_text, width));
@@ -1874,6 +1889,8 @@ static void draw_dashboard(const struct kernel_proc_lab_stats *stats,
 		DRAW_ONE(draw_section_title("last message", width));
 		DRAW_ONE(draw_message_row(message, width));
 	}
+
+	draw_limit = body_lines;
 	DRAW_ONE(draw_section_title("recent log", width));
 	if (log_snapshot->count == 0) {
 		struct kernel_proc_lab_log_entry empty = { 0 };
@@ -1965,7 +1982,7 @@ int main(void)
 				break;
 			}
 
-			update_health(&stats, &module, &health);
+			update_health(&stats, &health);
 			read_system_metrics(&metrics, &previous_cpu);
 			update_counter_rates(&stats, &rates);
 			read_project_metrics_cached(&project_cache, &project);

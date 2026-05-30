@@ -11,6 +11,21 @@ say() {
   printf 'labtop: %s\n' "$*" >&2
 }
 
+ensure_collector_service() {
+  if ! command -v systemctl >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if systemctl is-active --quiet kernel-proc-lab-collector.service 2>/dev/null; then
+    say "collector service is already active"
+    return 0
+  fi
+
+  say "starting collector service"
+  systemctl enable --now kernel-proc-lab-collector.service >/dev/null 2>&1 || \
+    sudo systemctl enable --now kernel-proc-lab-collector.service >/dev/null
+}
+
 if [[ ! -d "${source_dir}" ]]; then
   echo "missing DKMS source directory: ${source_dir}" >&2
   echo "reinstall the ${package_name} package" >&2
@@ -40,6 +55,7 @@ else
 fi
 
 ensure_device_node
+ensure_collector_service
 
 say "starting TUI"
 exec "${tui_binary}"

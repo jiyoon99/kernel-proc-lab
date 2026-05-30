@@ -14,6 +14,7 @@ override_dh_auto_install:
 	install -D -m 0755 kernel-lab-collector debian/kernel-proc-lab/usr/lib/kernel-proc-lab/kernel-lab-collector
 	install -D -m 0755 scripts/labtop-system-launcher.sh debian/kernel-proc-lab/usr/bin/labtop
 	install -D -m 0755 scripts/kernel-lab-system.sh debian/kernel-proc-lab/usr/bin/kernel-lab
+	install -D -m 0644 systemd/kernel-proc-lab.service debian/kernel-proc-lab/lib/systemd/system/kernel-proc-lab.service
 	install -D -m 0644 systemd/kernel-proc-lab-collector.service debian/kernel-proc-lab/lib/systemd/system/kernel-proc-lab-collector.service
 	install -D -m 0644 logrotate/kernel-proc-lab debian/kernel-proc-lab/etc/logrotate.d/kernel-proc-lab
 	install -D -m 0644 udev/99-kernel-proc-lab.rules debian/kernel-proc-lab/etc/udev/rules.d/99-kernel-proc-lab.rules

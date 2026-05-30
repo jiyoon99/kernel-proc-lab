@@ -83,6 +83,33 @@ static int snapshot_wrap_test(void)
 	return 0;
 }
 
+static int snapshot_clamps_to_user_capacity_test(void)
+{
+	struct kernel_proc_lab_log_entry entries[128] = {};
+	struct kernel_proc_lab_log_snapshot snapshot;
+	u64 sequence;
+	u32 index;
+
+	for (sequence = 1; sequence <= 128; sequence += 1) {
+		char message[KERNEL_PROC_LAB_MESSAGE_MAX];
+
+		snprintf(message, sizeof(message), "event-%llu",
+			 (unsigned long long)sequence);
+		kernel_proc_lab_ring_fill_message(entries, 128, sequence, message);
+	}
+
+	kernel_proc_lab_ring_snapshot(entries, 128, 128, 128, &snapshot);
+
+	EXPECT_EQ(snapshot.count, KERNEL_PROC_LAB_USER_LOG_CAPACITY);
+	EXPECT_EQ(snapshot.entries[0].seq, 65);
+	EXPECT_STREQ(snapshot.entries[0].message, "event-65");
+
+	index = KERNEL_PROC_LAB_USER_LOG_CAPACITY - 1;
+	EXPECT_EQ(snapshot.entries[index].seq, 128);
+	EXPECT_STREQ(snapshot.entries[index].message, "event-128");
+	return 0;
+}
+
 static int copy_entry_test(void)
 {
 	struct kernel_proc_lab_log_entry entries[KERNEL_PROC_LAB_LOG_CAPACITY] = {};
@@ -137,7 +164,8 @@ static int truncation_test(void)
 int main(void)
 {
 	if (constants_test() || retained_start_test() || snapshot_wrap_test() ||
-	    copy_entry_test() || truncation_test())
+	    snapshot_clamps_to_user_capacity_test() || copy_entry_test() ||
+	    truncation_test())
 		return 1;
 
 	puts("ring host tests passed");
