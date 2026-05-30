@@ -22,15 +22,15 @@ Release: <https://github.com/jiyoon99/kernel-proc-lab/releases/tag/v0.8.0>
 | Device interface | `/dev/kernel_proc_lab` character device, read/write path, `poll` wakeups |
 | Control ABI | versioned ioctl ABI v4, stats/config/log/filter/heartbeat commands |
 | Observability | `/proc`, sysfs, debugfs, tracepoints, `dmesg` diagnostics |
-| User tooling | `usercli`, self-starting `labtop`, `kernel-lab-collector` |
-| Packaging | DKMS install flow, Debian package, udev rule, systemd service, logrotate |
+| User tooling | `usercli`, self-starting `labtop`, `kernel-lab-collector` with `/proc` fallback |
+| Packaging | DKMS install flow, Debian package, udev rule, boot service, collector service, logrotate |
 | Verification | host tests, ABI layout tests, ShellCheck, runtime smoke, stress, release checks |
 
 ## Screenshots
 
 ### labtop TUI
 
-`labtop`은 모듈이 꺼져 있으면 필요한 바이너리를 빌드하고, 모듈 로드와 `/dev/kernel_proc_lab` 복구를 처리한 뒤 TUI를 실행합니다.
+`labtop`은 모듈이 꺼져 있으면 필요한 바이너리를 빌드하고, 모듈 로드와 `/dev/kernel_proc_lab` 복구를 처리한 뒤 TUI를 실행합니다. systemd collector를 사용할 수 없으면 로컬 collector를 `logs/events.jsonl`로 자동 시작합니다.
 
 ![Actual labtop terminal capture](docs/assets/labtop-actual.svg)
 
@@ -52,6 +52,10 @@ Release: <https://github.com/jiyoon99/kernel-proc-lab/releases/tag/v0.8.0>
 - filter commands for retained event views
 - JSON output for automation and collector integration
 - self-starting `labtop` terminal dashboard
+- compact `labtop` readiness view with counter graphs and latest event visible on short terminals
+- local collector fallback under `logs/events.jsonl`
+- `/proc/kernel_proc_lab` fallback collection when `/dev/kernel_proc_lab` is unavailable
+- boot-time `kernel-proc-lab.service` for module and device setup
 - DKMS and Debian packaging support
 
 ## Verification
@@ -134,7 +138,7 @@ labtop
 
 설치되는 명령:
 
-- `labtop`: 필요한 바이너리를 빌드하고, 모듈이 꺼져 있으면 heartbeat 켜고 로드한 뒤, `/dev/kernel_proc_lab`를 복구하고 btop 스타일 TUI 실행
+- `labtop`: 필요한 바이너리를 빌드하고, 모듈이 꺼져 있으면 heartbeat 켜고 로드한 뒤, `/dev/kernel_proc_lab`를 복구하고 collector와 btop 스타일 TUI 실행
 - `kernel-lab`: `./run`과 같은 통합 실행 명령
 
 삭제:
@@ -155,7 +159,7 @@ make install-command
 labtop
 ```
 
-`labtop` 명령은 필요한 사용자 공간 바이너리를 빌드하고, 모듈이 꺼져 있으면 빌드 후 로드하며, `/dev/kernel_proc_lab` 장치 노드를 복구한 뒤 TUI를 실행합니다. 모듈 로드와 장치 노드 생성에는 `sudo` 권한이 필요할 수 있습니다.
+`labtop` 명령은 필요한 사용자 공간 바이너리를 빌드하고, 모듈이 꺼져 있으면 빌드 후 로드하며, `/dev/kernel_proc_lab` 장치 노드를 복구한 뒤 collector와 TUI를 실행합니다. systemd collector 설치나 시작이 불가능하면 로컬 collector로 `logs/events.jsonl`에 이벤트를 저장합니다. 모듈 로드와 장치 노드 생성에는 `sudo` 권한이 필요할 수 있습니다.
 
 DKMS로 커널 업데이트 이후 자동 재빌드를 관리하려면:
 
